@@ -18,12 +18,23 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Install curl and ca-certificates to download Temporal CLI
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl ca-certificates && \
+    curl -sSf https://temporal.download/cli.sh | sh && \
+    cp /root/.temporalio/bin/temporal /usr/local/bin/temporal && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY package*.json ./
 
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
+COPY start.sh ./start.sh
+
+RUN chmod +x ./start.sh
 
 EXPOSE 3000
 
-CMD ["node", "dist/index.js"]
+CMD ["./start.sh"]
