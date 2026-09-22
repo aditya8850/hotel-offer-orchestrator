@@ -119,6 +119,14 @@ npm run worker
 
 ## API Endpoints
 
+### 0. Interactive Web Dashboard & Swagger UI
+
+- **Interactive Dashboard**: Open `/` in your browser to search hotels, test price range filtering, view system health, and toggle simulated supplier outages with visual cards.
+- **Swagger Documentation**: Open `/docs` (or `/swagger`) in your browser to test and inspect all API endpoints interactively.
+- **OpenAPI JSON**: Available at `/docs.json`.
+
+---
+
 ### 1. Get Aggregated & Deduplicated Hotels
 - **URL**: `GET /api/hotels`
 - **Query Parameters**:

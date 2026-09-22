@@ -1,8 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import path from 'path';
+import swaggerUi from 'swagger-ui-express';
 import { hotelsRouter } from './routes/hotels.router';
 import { suppliersRouter } from './routes/suppliers.router';
 import { healthRouter } from './routes/health.router';
+import { swaggerSpec } from './docs/swagger.spec';
 
 export const app = express();
 
@@ -20,23 +23,23 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
   next();
 });
 
-// Mount routes
+// Swagger API Documentation endpoint
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/swagger', (_req: Request, res: Response) => res.redirect('/docs'));
+app.get('/docs.json', (_req: Request, res: Response) => res.json(swaggerSpec));
+
+// Serve static UI assets from public folder
+const publicPath = path.resolve(__dirname, '../public');
+app.use(express.static(publicPath));
+
+// Mount business routes
 app.use(suppliersRouter);
 app.use('/api', hotelsRouter);
 app.use(healthRouter);
 
-// Root greeting / info endpoint
+// Fallback for root to serve index.html if static middleware didn't catch it
 app.get('/', (_req: Request, res: Response) => {
-  res.json({
-    name: 'Hotel Offer Orchestrator API',
-    status: 'running',
-    endpoints: {
-      hotels: '/api/hotels?city=delhi&minPrice=5000&maxPrice=8000',
-      supplierA: '/supplierA/hotels?city=delhi',
-      supplierB: '/supplierB/hotels?city=delhi',
-      health: '/health',
-    },
-  });
+  res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 // 404 handler

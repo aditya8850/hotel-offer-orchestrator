@@ -87,11 +87,24 @@ describe('API Routes', () => {
     });
   });
 
-  describe('Root Info Endpoint', () => {
-    it('GET / should return service info and endpoint links', async () => {
+  describe('Root UI and Swagger Endpoints', () => {
+    it('GET / should serve the Web UI dashboard HTML', async () => {
       const res = await request(app).get('/');
       expect(res.status).toBe(200);
-      expect(res.body.name).toBe('Hotel Offer Orchestrator API');
+      expect(res.text).toContain('Hotel Offer Orchestrator');
+    });
+
+    it('GET /docs.json should return OpenAPI 3.0 specification', async () => {
+      const res = await request(app).get('/docs.json');
+      expect(res.status).toBe(200);
+      expect(res.body.openapi).toBe('3.0.0');
+      expect(res.body.info.title).toContain('Hotel Offer Orchestrator');
+    });
+
+    it('GET /docs should serve Swagger UI', async () => {
+      const res = await request(app).get('/docs/');
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('swagger');
     });
   });
 });

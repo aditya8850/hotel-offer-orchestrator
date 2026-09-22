@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Offer Orchestrator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 50% 0%, #171d33 0%, #090d16 100%);
+      --surface-1: rgba(19, 27, 46, 0.7);
+      --surface-2: rgba(30, 41, 69, 0.5);
+      --surface-border: rgba(255, 255, 255, 0.08);
+      --surface-border-hover: rgba(99, 102, 241, 0.35);
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-glow: rgba(99, 102, 241, 0.25);
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(9, 13, 22, 0.75);
+      border-bottom: 1px solid var(--surface-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 16px 24px;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--accent-cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 16px var(--primary-glow);
+    }
+
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+      background: linear-gradient(120deg, #fff 40%, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-swagger {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #a5b4fc;
+      font-weight: 600;
+      font-size: 13px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-swagger:hover {
+      background: rgba(99, 102, 241, 0.22);
+      border-color: var(--primary);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      font-size: 12px;
+      font-weight: 500;
+      color: #6ee7b7;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .hero-banner {
+      text-align: center;
+      padding: 24px 16px 16px;
+    }
+
+    .hero-banner h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+
+    .hero-banner p {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    .control-card {
+      background: var(--surface-1);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .search-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr auto;
+      gap: 16px;
+      align-items: end;
+    }
+
+    @media (max-width: 860px) {
+      .search-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-group label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--surface-border);
+      background: rgba(10, 15, 29, 0.6);
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .btn-submit {
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: linear-gradient(135deg, var(--primary), var(--accent-cyan));
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      height: 44px;
+      box-shadow: 0 4px 16px var(--primary-glow);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .preset-chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .chip {
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--surface-border);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .chip:hover, .chip.active {
+      background: rgba(99, 102, 241, 0.18);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    /* Outage Simulator Panel */
+    .simulator-panel {
+      border-top: 1px solid var(--surface-border);
+      padding-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .simulator-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .simulator-toggles {
+      display: flex;
+      gap: 12px;
+    }
+
+    .toggle-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--surface-border);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .toggle-btn.active-down {
+      background: rgba(244, 63, 94, 0.15);
+      border-color: var(--accent-rose);
+      color: #fda4af;
+    }
+
+    /* Results section */
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .results-count {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .toggle-json-btn {
+      background: transparent;
+      border: 1px solid var(--surface-border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .toggle-json-btn:hover {
+      color: #fff;
+      border-color: var(--text-dim);
+    }
+
+    .hotels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .hotel-card {
+      background: var(--surface-1);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hotel-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--surface-border-hover);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .hotel-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 19px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .supplier-badge {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .badge-supplier-a {
+      background: rgba(147, 51, 234, 0.15);
+      border: 1px solid rgba(147, 51, 234, 0.3);
+      color: #c084fc;
+    }
+
+    .badge-supplier-b {
+      background: rgba(14, 165, 233, 0.15);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      color: #7dd3fc;
+    }
+
+    .price-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .price-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .price-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent-emerald);
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .commission-tag {
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      background: var(--surface-1);
+      border: 1px dashed var(--surface-border);
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    /* JSON Drawer */
+    #jsonModal {
+      display: none;
+      background: #0d121f;
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      color: #e2e8f0;
+      max-height: 400px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+
+    footer {
+      border-top: 1px solid var(--surface-border);
+      padding: 20px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    footer a {
+      color: #a5b4fc;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <a href="/" class="brand">
+        <div class="brand-icon">🏨</div>
+        <div class="brand-title">Hotel Offer Orchestrator</div>
+      </a>
+      <div class="header-actions">
+        <div class="status-pill" id="healthPill">
+          <span class="status-dot" id="healthDot"></span>
+          <span id="healthText">Checking health...</span>
+        </div>
+        <a href="/docs" class="btn-swagger" target="_blank">
+          <span>⚡ API Docs (Swagger)</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-banner">
+      <h1>Deduplicated Hotel Offers with Lowest Price Guarantee</h1>
+      <p>Orchestrated with <strong>Temporal.io</strong> workflows, comparing Supplier A & Supplier B in parallel, cached and price-filtered inside <strong>Redis Sorted Sets</strong>.</p>
+    </section>
+
+    <!-- Controls -->
+    <section class="control-card">
+      <form id="searchForm" class="search-grid">
+        <div class="input-group">
+          <label for="cityInput">City Destination</label>
+          <input type="text" id="cityInput" class="input-field" value="delhi" placeholder="e.g. delhi, mumbai" required>
+        </div>
+        <div class="input-group">
+          <label for="minPrice">Min Price (₹)</label>
+          <input type="number" id="minPrice" class="input-field" placeholder="No min">
+        </div>
+        <div class="input-group">
+          <label for="maxPrice">Max Price (₹)</label>
+          <input type="number" id="maxPrice" class="input-field" placeholder="No max">
+        </div>
+        <button type="submit" id="searchBtn" class="btn-submit">
+          <span id="btnText">Search Hotels</span>
+        </button>
+      </form>
+
+      <!-- Preset Quick Filters -->
+      <div class="preset-chips">
+        <span>Quick Cities:</span>
+        <button type="button" class="chip" onclick="setCity('delhi')">Delhi (Overlaps)</button>
+        <button type="button" class="chip" onclick="setCity('mumbai')">Mumbai</button>
+        <button type="button" class="chip" onclick="setCity('atlantis')">Atlantis (Empty)</button>
+        <span style="margin-left: 12px;">Price Filter:</span>
+        <button type="button" class="chip" onclick="setPriceRange(null, null)">All</button>
+        <button type="button" class="chip" onclick="setPriceRange(null, 6000)">Under ₹6,000</button>
+        <button type="button" class="chip" onclick="setPriceRange(5500, 8000)">₹5,500 - ₹8,000</button>
+        <button type="button" class="chip" onclick="setPriceRange(8000, null)">Over ₹8,000</button>
+      </div>
+
+      <!-- Outage Simulator -->
+      <div class="simulator-panel">
+        <div class="simulator-label">
+          <span>🛠️ Outage Simulation (Temporal Fault-Tolerance):</span>
+        </div>
+        <div class="simulator-toggles">
+          <button type="button" class="toggle-btn" id="toggleA" onclick="toggleSupplier('A')">
+            <span>Supplier A: <strong id="statusA">HEALTHY</strong></span>
+          </button>
+          <button type="button" class="toggle-btn" id="toggleB" onclick="toggleSupplier('B')">
+            <span>Supplier B: <strong id="statusB">HEALTHY</strong></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <div class="results-header">
+      <div class="results-count" id="resultTitle">Results</div>
+      <button class="toggle-json-btn" onclick="toggleJsonView()">Toggle Raw JSON</button>
+    </div>
+
+    <!-- JSON Preview Box -->
+    <pre id="jsonModal"></pre>
+
+    <!-- Hotel Cards Grid -->
+    <div class="hotels-grid" id="hotelsGrid">
+      <div class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <p>Click "Search Hotels" above to query Supplier A and B through Temporal.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Hotel Offer Orchestrator &bull; Powered by Express, Temporal.io & Redis &bull;
+    <a href="/docs" target="_blank">Swagger Documentation</a>
+  </footer>
+
+  <script>
+    let supplierADown = false;
+    let supplierBDown = false;
+    let lastJsonData = null;
+
+    // Fetch initial health on page load
+    async function updateHealth() {
+      try {
+        const res = await fetch('/health');
+        const data = await res.json();
+        const pill = document.getElementById('healthPill');
+        const text = document.getElementById('healthText');
+        const dot = document.getElementById('healthDot');
+
+        if (data.status === 'UP') {
+          pill.style.background = 'rgba(16, 185, 129, 0.1)';
+          pill.style.borderColor = 'rgba(16, 185, 129, 0.25)';
+          pill.style.color = '#6ee7b7';
+          dot.style.background = '#10b981';
+          text.textContent = 'All Services UP';
+        } else if (data.status === 'DEGRADED') {
+          pill.style.background = 'rgba(245, 158, 11, 0.1)';
+          pill.style.borderColor = 'rgba(245, 158, 11, 0.25)';
+          pill.style.color = '#fde68a';
+          dot.style.background = '#f59e0b';
+          text.textContent = 'Degraded (1 Supplier Down)';
+        } else {
+          pill.style.background = 'rgba(244, 63, 94, 0.1)';
+          pill.style.borderColor = 'rgba(244, 63, 94, 0.25)';
+          pill.style.color = '#fda4af';
+          dot.style.background = '#f43f5e';
+          text.textContent = 'System Down';
+        }
+      } catch (e) {
+        document.getElementById('healthText').textContent = 'Health Offline';
+      }
+    }
+
+    async function searchHotels() {
+      const city = document.getElementById('cityInput').value.trim();
+      const minPrice = document.getElementById('minPrice').value.trim();
+      const maxPrice = document.getElementById('maxPrice').value.trim();
+      const searchBtn = document.getElementById('searchBtn');
+      const btnText = document.getElementById('btnText');
+      const grid = document.getElementById('hotelsGrid');
+      const resultTitle = document.getElementById('resultTitle');
+
+      if (!city) return;
+
+      searchBtn.disabled = true;
+      btnText.textContent = 'Orchestrating...';
+
+      let url = `/api/hotels?city=${encodeURIComponent(city)}`;
+      if (minPrice) url += `&minPrice=${encodeURIComponent(minPrice)}`;
+      if (maxPrice) url += `&maxPrice=${encodeURIComponent(maxPrice)}`;
+
+      try {
+        const res = await fetch(url);
+        const hotels = await res.json();
+        lastJsonData = hotels;
+        document.getElementById('jsonModal').textContent = JSON.stringify(hotels, null, 2);
+
+        if (!res.ok) {
+          grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1/-1;">
+              <div class="empty-state-icon">⚠️</div>
+              <p style="color: var(--accent-rose);">${hotels.error || 'Failed to fetch hotels'}</p>
+            </div>`;
+          resultTitle.textContent = 'Error';
+          return;
+        }
+
+        resultTitle.textContent = `${hotels.length} Best Offer${hotels.length === 1 ? '' : 's'} for "${city}"`;
+
+        if (hotels.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1/-1;">
+              <div class="empty-state-icon">🏨</div>
+              <p>No hotels found matching your criteria in "${city}".</p>
+            </div>`;
+          return;
+        }
+
+        grid.innerHTML = hotels.map(hotel => {
+          const isSupplierA = hotel.supplier === 'Supplier A';
+          const badgeClass = isSupplierA ? 'badge-supplier-a' : 'badge-supplier-b';
+
+          return `
+            <div class="hotel-card">
+              <div class="card-top">
+                <div class="hotel-name">${escapeHtml(hotel.name)}</div>
+                <span class="supplier-badge ${badgeClass}">${escapeHtml(hotel.supplier)}</span>
+              </div>
+              <div class="price-box">
+                <span class="price-label">Best Available Price</span>
+                <span class="price-val">₹${hotel.price.toLocaleString()}</span>
+              </div>
+              <div class="card-footer">
+                <span>Commission</span>
+                <span class="commission-tag">${hotel.commissionPct}%</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1/-1;">
+            <div class="empty-state-icon">⚠️</div>
+            <p style="color: var(--accent-rose);">${err.message}</p>
+          </div>`;
+      } finally {
+        searchBtn.disabled = false;
+        btnText.textContent = 'Search Hotels';
+      }
+    }
+
+    async function toggleSupplier(supplier) {
+      if (supplier === 'A') {
+        supplierADown = !supplierADown;
+      } else {
+        supplierBDown = !supplierBDown;
+      }
+
+      await fetch('/suppliers/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supplierADown, supplierBDown }),
+      });
+
+      const btnA = document.getElementById('toggleA');
+      const statusA = document.getElementById('statusA');
+      if (supplierADown) {
+        btnA.classList.add('active-down');
+        statusA.textContent = 'OFFLINE (DOWN)';
+      } else {
+        btnA.classList.remove('active-down');
+        statusA.textContent = 'HEALTHY';
+      }
+
+      const btnB = document.getElementById('toggleB');
+      const statusB = document.getElementById('statusB');
+      if (supplierBDown) {
+        btnB.classList.add('active-down');
+        statusB.textContent = 'OFFLINE (DOWN)';
+      } else {
+        btnB.classList.remove('active-down');
+        statusB.textContent = 'HEALTHY';
+      }
+
+      await updateHealth();
+      await searchHotels();
+    }
+
+    function setCity(city) {
+      document.getElementById('cityInput').value = city;
+      searchHotels();
+    }
+
+    function setPriceRange(min, max) {
+      document.getElementById('minPrice').value = min !== null ? min : '';
+      document.getElementById('maxPrice').value = max !== null ? max : '';
+      searchHotels();
+    }
+
+    function toggleJsonView() {
+      const modal = document.getElementById('jsonModal');
+      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    document.getElementById('searchForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      searchHotels();
+    });
+
+    // Run on load
+    updateHealth();
+    searchHotels();
+  </script>
+</body>
+</html>
