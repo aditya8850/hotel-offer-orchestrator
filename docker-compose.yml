@@ -1,0 +1,66 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: hotel-orchestrator-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 2s
+      retries: 5
+    restart: unless-stopped
+
+  temporal:
+    image: temporalio/temporal:latest
+    container_name: hotel-orchestrator-temporal
+    command: ["server", "start-dev", "--ip", "0.0.0.0", "--ui-port", "8233"]
+    ports:
+      - "7233:7233"
+      - "8233:8233"
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hotel-orchestrator-api
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_TASK_QUEUE=hotel-offers-task-queue
+      - SUPPLIER_A_URL=http://api:3000/supplierA/hotels
+      - SUPPLIER_B_URL=http://api:3000/supplierB/hotels
+      - START_WORKER=false
+      - NODE_ENV=production
+    depends_on:
+      redis:
+        condition: service_healthy
+      temporal:
+        condition: service_started
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hotel-orchestrator-worker
+    command: ["node", "dist/temporal/worker.js"]
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_TASK_QUEUE=hotel-offers-task-queue
+      - SUPPLIER_A_URL=http://api:3000/supplierA/hotels
+      - SUPPLIER_B_URL=http://api:3000/supplierB/hotels
+      - NODE_ENV=production
+    depends_on:
+      redis:
+        condition: service_healthy
+      temporal:
+        condition: service_started
+      api:
+        condition: service_started
+    restart: unless-stopped

@@ -1,0 +1,177 @@
+{
+  "info": {
+    "_postman_id": "8f88c6e2-2a74-4b51-9df4-6d9b04859a01",
+    "name": "Hotel Offer Orchestrator",
+    "description": "Postman test suite for Hotel Offer Orchestrator API (Express, Temporal, Redis, Mock Suppliers)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Aggregate Hotels - Delhi (Overlaps & Best Price)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/hotels?city=delhi",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "hotels"],
+          "query": [
+            {
+              "key": "city",
+              "value": "delhi"
+            }
+          ]
+        },
+        "description": "Fetches aggregated and deduplicated hotels for Delhi. Compares Supplier A and Supplier B, selecting the cheaper offer for overlapping hotels."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Aggregate Hotels - Price Filter (5500 to 8000)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/hotels?city=delhi&minPrice=5500&maxPrice=8000",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "hotels"],
+          "query": [
+            {
+              "key": "city",
+              "value": "delhi"
+            },
+            {
+              "key": "minPrice",
+              "value": "5500"
+            },
+            {
+              "key": "maxPrice",
+              "value": "8000"
+            }
+          ]
+        },
+        "description": "Tests Redis-based price filtering using Sorted Set range query (ZRANGEBYSCORE)."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Aggregate Hotels - City With No Results",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/hotels?city=atlantis",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "hotels"],
+          "query": [
+            {
+              "key": "city",
+              "value": "atlantis"
+            }
+          ]
+        },
+        "description": "Tests querying a city where no suppliers have inventory. Should return an empty list []."
+      },
+      "response": []
+    },
+    {
+      "name": "4. Validation - Missing City Parameter (400 Bad Request)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/hotels",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "hotels"]
+        },
+        "description": "Validates that omitting the required 'city' parameter returns HTTP 400 Bad Request."
+      },
+      "response": []
+    },
+    {
+      "name": "5. Mock Supplier A - Delhi Hotels",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/supplierA/hotels?city=delhi",
+          "host": ["{{baseUrl}}"],
+          "path": ["supplierA", "hotels"],
+          "query": [
+            {
+              "key": "city",
+              "value": "delhi"
+            }
+          ]
+        },
+        "description": "Direct call to Mock Supplier A endpoint."
+      },
+      "response": []
+    },
+    {
+      "name": "6. Mock Supplier B - Delhi Hotels",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/supplierB/hotels?city=delhi",
+          "host": ["{{baseUrl}}"],
+          "path": ["supplierB", "hotels"],
+          "query": [
+            {
+              "key": "city",
+              "value": "delhi"
+            }
+          ]
+        },
+        "description": "Direct call to Mock Supplier B endpoint."
+      },
+      "response": []
+    },
+    {
+      "name": "7. Simulate Supplier A Outage (503 Service Unavailable)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/supplierA/hotels?city=delhi&simulateDown=true",
+          "host": ["{{baseUrl}}"],
+          "path": ["supplierA", "hotels"],
+          "query": [
+            {
+              "key": "city",
+              "value": "delhi"
+            },
+            {
+              "key": "simulateDown",
+              "value": "true"
+            }
+          ]
+        },
+        "description": "Simulates Supplier A being down by passing simulateDown=true."
+      },
+      "response": []
+    },
+    {
+      "name": "8. Health Check (/health)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Informs about the overall service health and the health/latency of both suppliers, Redis, and Temporal."
+      },
+      "response": []
+    }
+  ]
+}
